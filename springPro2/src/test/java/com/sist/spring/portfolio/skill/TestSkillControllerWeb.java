@@ -37,22 +37,26 @@ import org.springframework.web.context.WebApplicationContext;
 
 
 
+
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/spring/root-context.xml",
 		                           "file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml"
                                    })
-public class TestControllerWeb {
+public class TestSkillControllerWeb {
 
-	private final Logger  LOG = LoggerFactory.getLogger(TestControllerWeb.class);
+	private final Logger  LOG = LoggerFactory.getLogger(TestSkillControllerWeb.class);
 
 	@Autowired
 	WebApplicationContext  webApplicationContext;
 
-	private List<SkillVO> skills;
+	private List<SkillVO> skillsList;
 
 	@Autowired
 	SkillService  skillService;
+	
+	@Autowired
+	SkillDaoImple  dao;
 
 	//브라우저 대신 Mock
 	private MockMvc mockMvc;
@@ -63,7 +67,7 @@ public class TestControllerWeb {
 		LOG.debug("*********************");
 		LOG.debug("=setUp()=");
 		LOG.debug("*********************");
-		skills = Arrays.asList(
+		skillsList = Arrays.asList(
 					 new SkillVO("Oracle",	"j_hr001",	90	,"내용001")
 					,new SkillVO("JAVA",	"j_hr002",	81	,"내용002")
 					,new SkillVO("CSS",	"j_hr003",	50	,"내용003")
@@ -81,20 +85,21 @@ public class TestControllerWeb {
 
 	//단건조회
 	@Test
+	@Ignore
 	public void doSelectOne() throws Exception {
 		//url+param
 		MockHttpServletRequestBuilder  createMesage
-		           = MockMvcRequestBuilders.post("/skill/do_select_one.do")
-		             .param("memberId", skills.get(1).getMemberId()) 
-		             .param("sName", skills.get(1).getsName());
+		           = MockMvcRequestBuilders.post("/skill/do_select_one.spring")
+		             .param("memberId", skillsList.get(1).getMemberId()) 
+		             .param("sName", skillsList.get(1).getsName());
 		            
 
 		//MediaType.APPLICATION_JSON_UTF8 ==application/json;charset=UTF-8
 		ResultActions  resultActions = mockMvc.perform(createMesage)
 			.andExpect(status().is2xxSuccessful())
 			.andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
-		    .andExpect(MockMvcResultMatchers.jsonPath("$.sName", is(skills.get(1).getsName())))
-		    .andExpect(MockMvcResultMatchers.jsonPath("$.sMarstery", is(skills.get(1).getsMarstery())))
+		    .andExpect(MockMvcResultMatchers.jsonPath("$.sName", is(skillsList.get(1).getsName())))
+		    .andExpect(MockMvcResultMatchers.jsonPath("$.sMarstery", is(skillsList.get(1).getsMarstery())))
 		    ;
 
 		String result = resultActions.andDo(print())
@@ -108,12 +113,13 @@ public class TestControllerWeb {
 	}
 
 	@Test
+	@Ignore
 	public void doDelete() throws Exception {
 		//url+param
 		MockHttpServletRequestBuilder  createMesage
-		           = MockMvcRequestBuilders.post ("/skill/do_delete.do")
-		        		   .param("memberId", skills.get(0).getMemberId()) 
-				             .param("sName", skills.get(0).getsName());
+		           = MockMvcRequestBuilders.post ("/skill/do_delete.spring")
+		        		   .param("memberId", skillsList.get(0).getMemberId()) 
+				             .param("sName", skillsList.get(0).getsName());
 		//MediaType.APPLICATION_JSON_UTF8 ==application/json;charset=UTF-8
 		ResultActions  resultActions = mockMvc.perform(createMesage)
 			.andExpect(status().is2xxSuccessful())
@@ -129,6 +135,58 @@ public class TestControllerWeb {
 		LOG.debug("=====================");
 
 	}
+	
+	@Test
+	public void doUpdate() throws Exception {
+		
+		//2.단건입력
+		//3.단건조회
+		//3.1.단건수정
+		//4.수정
+		//5.수정데이터 조회
+		//6.비교 
+	
+		int flag = dao.doInsert(skillsList.get(0));
+		assertThat(flag, is(1));
+		
+		SkillVO skillVO = (SkillVO) dao.doSelectOne(skillsList.get(0));
+		LOG.debug("=====================");
+		LOG.debug("=skillVO="+skillVO);
+		LOG.debug("=====================");  
+		
+	
+		//url+param
+		MockHttpServletRequestBuilder  createMesage 
+		           = MockMvcRequestBuilders.post ("/skill/do_update.spring")
+		        		   .param("memberId", skillsList.get(0).getMemberId()) 
+				             .param("sName", skillsList.get(0).getsName())
+				             .param("sMarstery", Integer.toString(skillsList.get(0).getsMarstery()))
+				             .param("sContent", skillsList.get(0).getsContent()+"_UU")
+				             
+				             ;
+		
+		
+		ResultActions  resultActions = mockMvc.perform(createMesage)
+			.andExpect(status().is2xxSuccessful())
+			.andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8))
+		    .andExpect(MockMvcResultMatchers.jsonPath("$.msgId", is("1")));
+			;
+		
+		String result = resultActions.andDo(print())
+				.andReturn()
+				.getResponse().getContentAsString();
+		LOG.debug("=====================");
+		LOG.debug("=result="+result);
+		LOG.debug("=====================");  		
+				
+		//5.수정데이터 조회
+		SkillVO vsVO = (SkillVO) dao.doSelectOne(skillVO);
+		LOG.debug("=vsVO="+vsVO);
+		LOG.debug("=skillVO="+skillVO);
+	}
+	
+	
+	
 
 
 	@Test
