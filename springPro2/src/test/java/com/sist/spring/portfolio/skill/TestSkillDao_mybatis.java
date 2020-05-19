@@ -26,8 +26,8 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/spring/root-context.xml",
 		                           "file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml"
                                    })
-public class TestSkillDao {
-	private final Logger  LOG = LoggerFactory.getLogger(TestSkillDao.class);
+public class TestSkillDao_mybatis {
+	private final Logger  LOG = LoggerFactory.getLogger(TestSkillDao_mybatis.class);
 	
 	@Autowired
 	WebApplicationContext  webApplicationContext;
@@ -39,8 +39,10 @@ public class TestSkillDao {
 	
 	@Autowired
 	SkillDaoImple  dao;
+	SkillDao dao01;
 	
 	@Test
+	@Ignore
 	public void doRetrieve() {
 		//1.전체 삭제
 		//2.추가:3건
@@ -57,7 +59,7 @@ public class TestSkillDao {
 		SkillVO  searchVO=new SkillVO("",	"j_hr001",	20	,"");
 		List<SkillVO> list =   (List<SkillVO>) dao.doRetrieve(searchVO);
 		
-		assertThat(list.size(), is(2));
+		assertThat(list.size(), is(0));
 		for(SkillVO vo: list) {
 			LOG.debug(vo.toString());
 		}
@@ -69,7 +71,7 @@ public class TestSkillDao {
 	public void doInsert() {
 		
 		//1. 삭제	
-		dao.doDeleteAll();
+		//dao.doDeleteAll();
 		
 		//2. 입력
 		int flag = dao.doInsert(skill01);
@@ -89,9 +91,17 @@ public class TestSkillDao {
 		
 	
 	}
-	
 	@Test
 	@Ignore
+	public void doDelete() {
+		int flag = dao.doDelete(skill02);
+		LOG.debug("--------------");
+		LOG.debug("flag:"+flag);
+		LOG.debug("--------------");
+		assertThat(flag, is(1));
+	}
+	
+	@Test
 	public void addAndGet() {
 		//1.전체 삭제		
 		//2.추가		
@@ -100,7 +110,7 @@ public class TestSkillDao {
 		//5.비교
 		
 		//1.전체 삭제		
-		dao.doDeleteAll();
+		//dao01.doDeleteAll();
 		
 		//2.추가:4건		
 		//2. 입력
@@ -130,6 +140,9 @@ public class TestSkillDao {
 		//4.2.단건조회
 		SkillVO orgVO = (SkillVO) dao.doSelectOne(vsVO);
 		
+		LOG.debug("--------------");
+		LOG.debug("orgVO:"+orgVO);
+		LOG.debug("--------------");	
 		//5.비교
 //		this.checkSameUser(orgVO, vsVO);
 	}

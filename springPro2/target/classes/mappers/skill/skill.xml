@@ -47,17 +47,19 @@
     
     <!-- 등록 : -->
     <insert id="doInsert" parameterType="SkillVO">
-         INSERT INTO skill ( 
-		     s_name as sName,         
-		     member_id as memberId,      
-		     s_marstery as sMarstery,     
-		     s_content as sContent       
-		 ) VALUES (          
-		      #{sName,jdbcType=VARCHAR},              
-		      #{memberId,jdbcType=VARCHAR},              
-		      #{sMarstery,jdbcType=NUMERIC},              
-		      #{sContent,jdbcType=VARCHAR}               
-		 )                   
+         
+         INSERT INTO skill (
+			    s_name,        
+			    member_id,     
+			    s_marstery,    
+			    s_content     
+			) VALUES (    
+			 #{sName,jdbcType=VARCHAR},
+			  #{memberId,jdbcType=VARCHAR},
+			   #{sMarstery,jdbcType=NUMERIC},
+			    #{sContent,jdbcType=VARCHAR} 
+			)
+         
     </insert>
 
     <!--삭제 : namespace+id = com.sist.ehr.user.doDelete
